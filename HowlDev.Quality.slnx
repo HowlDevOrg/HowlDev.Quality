@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/HowlDev.Quality.Benchmarking.Tests/HowlDev.Quality.Benchmarking.Tests.csproj" />
+  </Folder>
+  <Project Path="HowlDev.Quality.ApiTesting/HowlDev.Quality.ApiTesting.csproj" />
+  <Project Path="HowlDev.Quality.Benchmarking/HowlDev.Quality.Benchmarking.csproj" />
+  <Project Path="HowlDev.Quality.DataGeneration/HowlDev.Quality.DataGeneration.csproj" />
+  <Project Path="HowlDev.Quality.Mutations.Api/HowlDev.Quality.Mutations.Api.csproj" />
+  <Project Path="HowlDev.Quality.Mutations/HowlDev.Quality.Mutations.csproj" />
+  <Project Path="HowlDev.Quality.TestGeneration/HowlDev.Quality.TestGeneration.csproj" />
+</Solution>

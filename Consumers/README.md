@@ -1,0 +1,1 @@
+This project holds my "testing" classes, which here I'm calling Consumers. I don't really know if I can hook in the BenchmarkDotNet library into a TUnit project, so I'm just going to make a small console that validates the results I expect. (for the items that can't be tested.)

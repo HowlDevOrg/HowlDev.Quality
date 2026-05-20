@@ -1,0 +1,195 @@
+namespace HowlDev.Quality.Benchmarking;
+
+/// <summary>
+/// Set expectations of the boundaries of the benchmark.
+/// </summary>
+public class BenchmarkExpectations {
+    /// <summary>
+    /// Number of nanoseconds expected.
+    /// </summary>
+    public double? Nanoseconds {
+        get; private set {
+            if (value < 0) throw new InvalidDataException("Time value can't be negative.");
+            field = value;
+        }
+    }
+    /// <summary>
+    /// Number of microseconds expected.
+    /// </summary>
+    public double? Microseconds {
+        get => (Nanoseconds is null) ? null : Nanoseconds / 1_000;
+        private set => Nanoseconds = (value is null) ? null : value * 1_000;
+    }
+    /// <summary>
+    /// Number of milliseconds expected.
+    /// </summary>
+    public double? Milliseconds {
+        get => (Nanoseconds is null) ? null : Nanoseconds / 1_000_000;
+        private set => Nanoseconds = (value is null) ? null : value * 1_000_000;
+    }
+    /// <summary>
+    /// Set the margin of error (which includes upper and lower bounds) 
+    /// for the ____Second amount. <br/> This defaults to 1.1.
+    /// </summary>
+    public double MarginOfError { get; private set; } = 1.1;
+    /// <summary>
+    /// Number of bytes used from the GC. 
+    /// </summary>
+    public int? Bytes {
+        get; private set {
+            if (value < 0) throw new InvalidDataException("Byte value can't be negative.");
+            field = value;
+        }
+    }
+    /// <summary>
+    /// Number of kilobytes used from the GC. 
+    /// </summary>
+    public double? Kilobytes {
+        get => (Bytes is null) ? null : Math.Round((double)Bytes / 1024, 2);
+        private set => Bytes = (value is null) ? null : (int)Math.Floor((double)value * 1024);
+    }
+
+    private TimeCalculation Variation { get; set; } = TimeCalculation.Range;
+
+#pragma warning disable CS1591
+    #region Static functions
+    public static BenchmarkExpectations ExpectedNanoseconds(double value) {
+        return new BenchmarkExpectations() {
+            Nanoseconds = value
+        };
+    }
+    public static BenchmarkExpectations ExpectedMicroseconds(double value) {
+        return new BenchmarkExpectations() {
+            Microseconds = value
+        };
+    }
+    public static BenchmarkExpectations ExpectedMilliseconds(double value) {
+        return new BenchmarkExpectations() {
+            Milliseconds = value
+        };
+    }
+    public static BenchmarkExpectations ExpectedNanosecondsLessThan(double value) {
+        return new BenchmarkExpectations() {
+            Nanoseconds = value,
+            Variation = TimeCalculation.LT
+        };
+    }
+    public static BenchmarkExpectations ExpectedMicrosecondsLessThan(double value) {
+        return new BenchmarkExpectations() {
+            Microseconds = value,
+            Variation = TimeCalculation.LT
+        };
+    }
+    public static BenchmarkExpectations ExpectedMillisecondsLessThan(double value) {
+        return new BenchmarkExpectations() {
+            Milliseconds = value,
+            Variation = TimeCalculation.LT
+        };
+    }
+    public static BenchmarkExpectations ExpectedBytes(int value) {
+        return new BenchmarkExpectations() {
+            Bytes = value
+        };
+    }
+    public static BenchmarkExpectations ExpectedKilobytes(double value) {
+        return new BenchmarkExpectations() {
+            Kilobytes = value
+        };
+    }
+    #endregion
+    #region Object methods
+    public BenchmarkExpectations WithMarginOfError(double value) {
+        MarginOfError = value;
+        return this;
+    }
+    public BenchmarkExpectations WithBytes(int value) {
+        Bytes = value;
+        return this;
+    }
+    public BenchmarkExpectations WithKilobytes(double value) {
+        Kilobytes = value;
+        return this;
+    }
+    public BenchmarkExpectations WithNanoseconds(double value) {
+        Nanoseconds = value;
+        return this;
+    }
+    public BenchmarkExpectations WithMicroseconds(double value) {
+        Microseconds = value;
+        return this;
+    }
+    public BenchmarkExpectations WithMilliseconds(double value) {
+        Milliseconds = value;
+        return this;
+    }
+    public BenchmarkExpectations WithNanosecondsLessThan(double value) {
+        Nanoseconds = value;
+        Variation = TimeCalculation.LT;
+        return this;
+    }
+    public BenchmarkExpectations WithMicrosecondsLessThan(double value) {
+        Microseconds = value;
+        Variation = TimeCalculation.LT;
+        return this;
+    }
+    public BenchmarkExpectations WithMillisecondsLessThan(double value) {
+        Milliseconds = value;
+        Variation = TimeCalculation.LT;
+        return this;
+    }
+#pragma warning restore CS1591
+
+    /// <summary>
+    /// Checks if the input is a valid time length given the rules. <br/>
+    /// Throws an exception if invalid.
+    /// </summary>
+    /// <exception cref="BenchmarkException"></exception>
+    public void IsValidTime(double result) {
+        if (Nanoseconds is not null) {
+            if (Variation == TimeCalculation.Range) {
+                double bound1 = (double)Nanoseconds * MarginOfError;
+                double inverse = 1 / MarginOfError;
+                double bound2 = (double)Nanoseconds * inverse;
+                // In case someone puts a value less than 1: 
+                if (bound2 > bound1) {
+                    (bound2, bound1) = (bound1, bound2);
+                }
+
+                if (result > bound1 || result < bound2) {
+                    throw new BenchmarkException(result, bound1, bound2);
+                }
+            } else {
+                if (result >= Nanoseconds) {
+                    throw new BenchmarkException(result, (double)Nanoseconds, 0);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Checks if the input is valid. <br/>
+    /// If bytes is &gt;1024, it converts it to the decimal expansion of 
+    /// kB to check against, which can help in the debugging stage.  
+    /// </summary>
+    /// <exception cref="InvalidDataException"></exception>
+    /// <exception cref="BenchmarkException"></exception>
+    public void IsValidBytes(double result) {
+        if (Bytes is null) throw new InvalidDataException("Bytes needs to be checked before getting here.");
+        if (result > 1024) {
+            double roughApprox = Math.Round(result / 1024.0, 2);
+            if (roughApprox != Kilobytes) {
+                throw new BenchmarkException((int)Bytes, result);
+            }
+        } else {
+            if (result != Bytes) {
+                throw new BenchmarkException((int)Bytes, result);
+            }
+        }
+    }
+    #endregion
+
+    private enum TimeCalculation {
+        Range,
+        LT
+    }
+}

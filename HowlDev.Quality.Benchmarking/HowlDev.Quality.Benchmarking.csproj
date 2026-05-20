@@ -26,4 +26,8 @@
         <None Include="../_HowlDevLogo.png" Pack="true" PackagePath="" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    </ItemGroup>
+
 </Project>

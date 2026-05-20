@@ -3,14 +3,14 @@
     <PropertyGroup>
         <IsPackable>false</IsPackable>
         <TargetFramework>net10.0</TargetFramework>
-        <Version>0.0.1</Version>
-        <Authors>Sample Author</Authors>
+        <Version>0.1.0</Version>
+        <Authors>Howl Dev</Authors>
         <Description>Sample Description</Description>
-        <Copyright>Copyright (c) Organization Year</Copyright>
+        <Copyright>Copyright (c) Howl Dev 2026</Copyright>
         <PackageTags></PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <RepositoryUrl>https://github.com/Cody-Howell/HowlDev.Cli</RepositoryUrl>
-        <PackageProjectUrl>https://wiki.codyhowell.dev/cli</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/HowlDevOrg/HowlDev.Quality</RepositoryUrl>
+        <!-- <PackageProjectUrl>https://wiki.codyhowell.dev/quality</PackageProjectUrl> -->
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>_HowlDevLogo.png</PackageIcon>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -22,7 +22,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../README.md" Pack="true" PackagePath="README.md" />
+        <None Include="README.md" Pack="true" PackagePath="README.md" />
         <None Include="../_HowlDevLogo.png" Pack="true" PackagePath="" />
     </ItemGroup>
 

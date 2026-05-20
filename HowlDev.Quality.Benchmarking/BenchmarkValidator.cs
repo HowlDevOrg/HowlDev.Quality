@@ -35,6 +35,7 @@ public static class BenchmarkValidator {
 /// Hidden.
 /// </summary>
 public class BenchmarkValidator<T> {
+    internal BenchmarkValidator() {}
     private Dictionary<string, BenchmarkExpectations> actions = [];
     /// <summary>
     /// Provide the method name for a <c>[Benchmark]</c>ed function. Then use the fluent 
@@ -99,6 +100,11 @@ public class BenchmarkValidator<T> {
             foreach (BenchmarkException exception in exceptions) {
                 Console.WriteLine("- " + exception.Message);
             }
+
+            Console.ForegroundColor = ConsoleColor.White;
+            WriteBreaker();
+            Console.ForegroundColor = ConsoleColor.Red;
+            throw new AggregateException("Exceptions were thrown. Scroll up to see the results.", exceptions);
         }
 
         return result;

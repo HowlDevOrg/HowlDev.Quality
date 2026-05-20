@@ -9,8 +9,10 @@ public static class BenchmarkFillers {
     /// A rough approximation of something that extends time without performing
     /// other actions. 
     /// </summary>
-    public static void FillTime(int nanoseconds) {
-        int actualLoops = nanoseconds * 4;
+    /// <param name="nanoseconds">Nanoseconds to wait</param>
+    /// <param name="tuningParameter">Tuning parameter</param>
+    public static void FillTime(int nanoseconds, double tuningParameter = 4) {
+        int actualLoops = (int)(nanoseconds * tuningParameter);
         for (int i = 0; i < actualLoops; i++) { }
     }
 
@@ -19,7 +21,9 @@ public static class BenchmarkFillers {
     /// It seems to be accurate around 400, with things lower reading higher
     /// and things higher reading lower. You may need to play around with it. 
     /// </summary>
-    public static byte[] FillMemory(int bytes) {
-        return [.. new byte[(int)(bytes / 2.3)]]; // This division operator is a bit of voodoo, I'm not sure why it works like that.
+    /// <param name="bytes">Bytes to fill</param>
+    /// <param name="tuningParameter">Tuning parameter</param>
+    public static byte[] FillMemory(int bytes, double tuningParameter = 2.3) {
+        return [.. new byte[(int)(bytes / tuningParameter)]]; // This division operator is a bit of voodoo, I'm not sure why it works like that.
     }
 }

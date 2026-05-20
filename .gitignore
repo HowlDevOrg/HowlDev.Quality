@@ -6,3 +6,4 @@ node_modules/
 TestResults/
 .env
 BenchmarkDotNet.Artifacts/
+nupkg/

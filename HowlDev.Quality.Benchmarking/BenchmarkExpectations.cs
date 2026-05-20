@@ -1,3 +1,5 @@
+using BenchmarkDotNet.Reports;
+
 namespace HowlDev.Quality.Benchmarking;
 
 /// <summary>
@@ -40,13 +42,6 @@ public class BenchmarkExpectations {
             if (value < 0) throw new InvalidDataException("Byte value can't be negative.");
             field = value;
         }
-    }
-    /// <summary>
-    /// Number of kilobytes used from the GC. 
-    /// </summary>
-    public double? Kilobytes {
-        get => (Bytes is null) ? null : Math.Round((double)Bytes / 1024, 2);
-        private set => Bytes = (value is null) ? null : (int)Math.Floor((double)value * 1024);
     }
 
     private TimeCalculation Variation { get; set; } = TimeCalculation.Range;
@@ -91,11 +86,6 @@ public class BenchmarkExpectations {
             Bytes = value
         };
     }
-    public static BenchmarkExpectations ExpectedKilobytes(double value) {
-        return new BenchmarkExpectations() {
-            Kilobytes = value
-        };
-    }
     #endregion
     #region Object methods
     public BenchmarkExpectations WithMarginOfError(double value) {
@@ -104,10 +94,6 @@ public class BenchmarkExpectations {
     }
     public BenchmarkExpectations WithBytes(int value) {
         Bytes = value;
-        return this;
-    }
-    public BenchmarkExpectations WithKilobytes(double value) {
-        Kilobytes = value;
         return this;
     }
     public BenchmarkExpectations WithNanoseconds(double value) {
@@ -144,7 +130,7 @@ public class BenchmarkExpectations {
     /// Throws an exception if invalid.
     /// </summary>
     /// <exception cref="BenchmarkException"></exception>
-    public void IsValidTime(double result) {
+    public void IsValidTime(string method, double result) {
         if (Nanoseconds is not null) {
             if (Variation == TimeCalculation.Range) {
                 double bound1 = (double)Nanoseconds * MarginOfError;
@@ -156,11 +142,11 @@ public class BenchmarkExpectations {
                 }
 
                 if (result > bound1 || result < bound2) {
-                    throw new BenchmarkException(result, bound1, bound2);
+                    throw new BenchmarkException(method, result, bound1, bound2);
                 }
             } else {
                 if (result >= Nanoseconds) {
-                    throw new BenchmarkException(result, (double)Nanoseconds, 0);
+                    throw new BenchmarkException(method, result, (double)Nanoseconds, 0);
                 }
             }
         }
@@ -173,18 +159,48 @@ public class BenchmarkExpectations {
     /// </summary>
     /// <exception cref="InvalidDataException"></exception>
     /// <exception cref="BenchmarkException"></exception>
-    public void IsValidBytes(double result) {
+    public void IsValidBytes(string method, double result) {
         if (Bytes is null) throw new InvalidDataException("Bytes needs to be checked before getting here.");
-        if (result > 1024) {
-            double roughApprox = Math.Round(result / 1024.0, 2);
-            if (roughApprox != Kilobytes) {
-                throw new BenchmarkException((int)Bytes, result);
-            }
-        } else {
-            if (result != Bytes) {
-                throw new BenchmarkException((int)Bytes, result);
-            }
+        if (result != Bytes) {
+            throw new BenchmarkException(method, (int)Bytes, result);
         }
+    }
+
+    /// <summary>
+    /// Takes in a Report and checks it against the inner values. Throws one 
+    /// <c>BenchmarkException</c> if either the tests fail. 
+    /// </summary>
+    /// <exception cref="BenchmarkException"></exception>
+    /// <exception cref="InvalidDataException"></exception>
+    internal bool Report(BenchmarkReport report) {
+        BenchmarkException? e1 = null;
+        BenchmarkException? e2 = null;
+        string method = report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
+        try {
+            IsValidTime(method, report.ResultStatistics!.Mean);
+        } catch (BenchmarkException ex) {
+            e1 = ex;
+        }
+
+        try {
+            if (Bytes is not null) {
+                double actBytes;
+                try {
+                    actBytes = report.Metrics["Allocated Memory"].Value;
+                } catch {
+                    throw new BenchmarkException($"Did not find a memory allocation for title: {report.BenchmarkCase.ToString().Split(':')[0]}");
+                }
+
+                IsValidBytes(method, actBytes);
+            }
+        } catch (BenchmarkException ex) {
+            e2 = ex;
+        }
+
+        if (e1 is not null || e2 is not null) throw BenchmarkException.Combine(e1, e2);
+
+        return true;
+
     }
     #endregion
 

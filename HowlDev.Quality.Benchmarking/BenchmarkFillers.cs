@@ -16,8 +16,8 @@ public static class BenchmarkFillers {
 
     /// <summary>
     /// A rough approximation of something that extends memory usage. <br/>
-    /// It seems to be accurate around 400, with things lower being higher
-    /// and things higher being lower. You may need to play around with it. 
+    /// It seems to be accurate around 400, with things lower reading higher
+    /// and things higher reading lower. You may need to play around with it. 
     /// </summary>
     public static byte[] FillMemory(int bytes) {
         return [.. new byte[(int)(bytes / 2.3)]]; // This division operator is a bit of voodoo, I'm not sure why it works like that.

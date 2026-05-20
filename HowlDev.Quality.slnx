@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Consumers/">
+    <Project Path="Consumers/BenchmarkingConsumer/BenchmarkingConsumer.csproj" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/HowlDev.Quality.Benchmarking.Tests/HowlDev.Quality.Benchmarking.Tests.csproj" />
   </Folder>

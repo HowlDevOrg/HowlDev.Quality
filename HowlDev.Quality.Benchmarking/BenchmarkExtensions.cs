@@ -41,6 +41,7 @@ public static class BenchmarkExtensions {
             } catch {
                 Console.WriteLine("GC Allocation not recorded. Include [MemoryDiagnoser] attribute to validate.");
             }
+
             Console.WriteLine("------------------------");
         }
 

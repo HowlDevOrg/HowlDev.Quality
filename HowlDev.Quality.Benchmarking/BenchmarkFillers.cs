@@ -20,6 +20,6 @@ public static class BenchmarkFillers {
     /// and things higher being lower. You may need to play around with it. 
     /// </summary>
     public static byte[] FillMemory(int bytes) {
-        return [..new byte[(int)(bytes / 2.3)]]; // This division operator is a bit of voodoo, I'm not sure why it works like that.
+        return [.. new byte[(int)(bytes / 2.3)]]; // This division operator is a bit of voodoo, I'm not sure why it works like that.
     }
 }

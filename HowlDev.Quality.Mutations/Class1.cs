@@ -1,6 +1,5 @@
 ﻿namespace HowlDev.Quality.Mutations;
 
-public class Class1
-{
+public class Class1 {
 
 }

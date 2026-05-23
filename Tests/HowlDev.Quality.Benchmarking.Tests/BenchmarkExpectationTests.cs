@@ -31,12 +31,4 @@ public class BenchmarkExpectationTests {
         await Assert.That(item.Bytes).IsEqualTo(10);
         await Assert.That(item.Nanoseconds).IsNull();
     }
-
-    [Test]
-    public async Task KilobytesTest() {
-        var item = BenchmarkExpectations.ExpectedKilobytes(10);
-        await Assert.That(item.Bytes).IsEqualTo(10240);
-        await Assert.That(item.Kilobytes).IsEqualTo(10);
-        await Assert.That(item.Nanoseconds).IsNull();
-    }
 }

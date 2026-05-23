@@ -3,8 +3,6 @@ using HowlDev.Quality.Benchmarking;
 
 namespace BenchmarkingConsumer;
 
-[MemoryDiagnoser]
-[ShortRunJob]
 public class SampleBenchmark {
     [Benchmark]
     public int AdditionWithTimer() {

@@ -7,4 +7,5 @@ BenchmarkValidator.For<SampleBenchmark>()
     .WithProfile(BenchmarkProfiles.SilentShortRun)
     .WithMemoryDiagnoser()
     .WithDisassemblyOutput()
+    .WithGithubExporter()
     .Run();

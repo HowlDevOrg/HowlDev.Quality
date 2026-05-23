@@ -1,5 +1,7 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Reports;
 
 namespace HowlDev.Quality.Benchmarking; 
 
@@ -50,6 +52,47 @@ internal static class HelperFunctions {
 
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine("Validation complete! Starting benchmarks.");
-        Console.WriteLine("============");
+        WriteBreaker();
+    }
+
+    internal static void DisplayAndThrowErrors(Summary result, Dictionary<string, BenchmarkExpectations> actions) {
+        List<BenchmarkException> exceptions = [];
+        foreach (BenchmarkReport report in result.Reports) {
+            string methodName = report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
+            try {
+                if (actions.TryGetValue(methodName, out BenchmarkExpectations? exp)) {
+                    exp.Report(report);
+                }
+            } catch (Exception ex) {
+                if (ex is BenchmarkException ex1) {
+                    exceptions.Add(ex1);
+                } else if (ex is InvalidDataException) {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Somehow got an InvalidDataException in method {methodName}.");
+                } else {
+                    throw;
+                }
+            }
+        }
+
+        if (exceptions.Count > 0) {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Exceptions thrown: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            foreach (BenchmarkException exception in exceptions) {
+                Console.WriteLine("- " + exception.Message);
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+            WriteBreaker();
+            Console.ForegroundColor = ConsoleColor.Red;
+            throw new AggregateException("Exceptions were thrown. Scroll up to see the results.", exceptions);
+        }
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteBreaker() {
+        Console.WriteLine("================");
     }
 }

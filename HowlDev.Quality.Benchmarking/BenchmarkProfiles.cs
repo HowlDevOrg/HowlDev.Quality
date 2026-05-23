@@ -1,5 +1,4 @@
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Jobs;
 
 namespace HowlDev.Quality.Benchmarking;
@@ -9,9 +8,12 @@ namespace HowlDev.Quality.Benchmarking;
 /// </summary>
 public static class BenchmarkProfiles {
     public static ManualConfig ShortRun => ManualConfig.CreateMinimumViable().AddJob(Job.ShortRun);
-    public static ManualConfig ShortRunWithMemory => ManualConfig.CreateMinimumViable().AddJob(Job.ShortRun).AddDiagnoser(MemoryDiagnoser.Default);
     public static ManualConfig SilentShortRun => ManualConfig.CreateEmpty().AddJob(Job.ShortRun);
-    public static ManualConfig SilentShortRunWithMemory => ManualConfig.CreateEmpty().AddJob(Job.ShortRun).AddDiagnoser(MemoryDiagnoser.Default);
+    public static ManualConfig MediumRun => ManualConfig.CreateMinimumViable().AddJob(Job.MediumRun);
+    public static ManualConfig SilentMediumRun => ManualConfig.CreateEmpty().AddJob(Job.MediumRun);
+    public static ManualConfig Longun => ManualConfig.CreateMinimumViable().AddJob(Job.LongRun);
+    public static ManualConfig SilentLongRun => ManualConfig.CreateEmpty().AddJob(Job.LongRun);
+    public static ManualConfig CI => SilentShortRun;
 }
 
 /*

@@ -1,4 +1,5 @@
-using System.Runtime.CompilerServices;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 
@@ -33,7 +34,7 @@ public static class BenchmarkValidator {
 /// Hidden.
 /// </summary>
 public class BenchmarkValidator<T> {
-    internal BenchmarkValidator() {}
+    internal BenchmarkValidator() { }
     private Dictionary<string, BenchmarkExpectations> actions = [];
     /// <summary>
     /// Provide the method name for a <c>[Benchmark]</c>ed function. Then use the fluent 
@@ -41,11 +42,80 @@ public class BenchmarkValidator<T> {
     /// Any methods not provided (for Bytes or Nanoseconds) will default to null and 
     /// will not be tested (will always pass no matter their result). 
     /// </summary>
-    /// <param name="methodName"></param>
-    /// <param name="exp"></param>
-    /// <returns></returns>
     public BenchmarkValidator<T> Expect(string methodName, BenchmarkExpectations exp) {
         actions.Add(methodName, exp);
+        return this;
+    }
+
+    /// <summary>
+    /// Pass in a default configuration. This will override the Config option 
+    /// in the BenchmarkRunner process. <br/>
+    /// Use the BenchmarkProfiles static class to select a config. 
+    /// </summary>
+    public BenchmarkValidatorWithConfig<T> WithProfile(ManualConfig config) {
+        return new BenchmarkValidatorWithConfig<T>(actions, config);
+    }
+
+    /// <summary>
+    /// Takes the type and the provided expectations and matches them together. If 
+    /// the parameter is set to true (default), then it will stop if there's a 
+    /// mismatch of provided method names and benchmarked methods. This will happen before
+    /// any benchmarks are run. <br/>
+    /// Runs the default BenchmarkRunner system. Returns the <c>Summary</c> from 
+    /// the result after running known tests. <br/>
+    /// <hr/>
+    /// To get the current results for a benchmark suite without displaying exceptions, 
+    /// call the DebugDisplay extension on the result, as below: 
+    /// <code>
+    /// BenchmarkValidator.For&lt;SampleBenchmark&gt;()
+    ///    .Run()
+    ///    .DebugDisplay();
+    /// </code>
+    /// </summary>
+    public Summary Run(bool pauseOnInvalid = true, ManualConfig? config = null) {
+        HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
+
+        Summary result = BenchmarkRunner.Run<T>(config);
+        HelperFunctions.WriteBreaker();
+        HelperFunctions.DisplayAndThrowErrors(result, actions);
+
+        return result;
+    }
+}
+
+/// <summary>
+/// Hidden.
+/// </summary>
+public class BenchmarkValidatorWithConfig<T> {
+    internal BenchmarkValidatorWithConfig(Dictionary<string, BenchmarkExpectations> act, ManualConfig c) {
+        actions = act;
+        config = c;
+    }
+    private ManualConfig config;
+    private Dictionary<string, BenchmarkExpectations> actions = [];
+    /// <summary>
+    /// Provide the method name for a <c>[Benchmark]</c>ed function. Then use the fluent 
+    /// builder for an Expectation. <br/>
+    /// Any methods not provided (for Bytes or Nanoseconds) will default to null and 
+    /// will not be tested (will always pass no matter their result). 
+    /// </summary>
+    public BenchmarkValidatorWithConfig<T> Expect(string methodName, BenchmarkExpectations exp) {
+        actions.Add(methodName, exp);
+        return this;
+    }
+
+    public BenchmarkValidatorWithConfig<T> WithoutLogOutput() {
+        config.WithOptions(ConfigOptions.DisableLogFile);
+        return this;
+    }
+
+    public BenchmarkValidatorWithConfig<T> WithMemoryDiagnoser() {
+        config.AddDiagnoser(MemoryDiagnoser.Default);
+        return this;
+    }
+
+    public BenchmarkValidatorWithConfig<T> WithDisassemblyOutput() {
+        config.AddDiagnoser(new DisassemblyDiagnoser(new DisassemblyDiagnoserConfig()));
         return this;
     }
 
@@ -65,51 +135,13 @@ public class BenchmarkValidator<T> {
     ///    .DebugDisplay();
     /// </code>
     /// </summary>
-    /// <param name="pauseOnInvalid"></param>
-    /// <returns></returns>
     public Summary Run(bool pauseOnInvalid = true) {
-        HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [..actions.Keys]);
+        HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
 
-        Summary result = BenchmarkRunner.Run<T>();
-        WriteBreaker();
-        List<BenchmarkException> exceptions = [];
-        foreach (BenchmarkReport report in result.Reports) {
-            string methodName = report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
-            try {
-                if (actions.TryGetValue(methodName, out BenchmarkExpectations? exp)) {
-                    exp.Report(report);
-                }
-            } catch (Exception ex) {
-                if (ex is BenchmarkException ex1) {
-                    exceptions.Add(ex1);
-                } else if (ex is InvalidDataException) {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Somehow got an InvalidDataException in method {methodName}.");
-                } else {
-                    throw;
-                }
-            }
-        }
-
-        if (exceptions.Count > 0) {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("Exceptions thrown: ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            foreach (BenchmarkException exception in exceptions) {
-                Console.WriteLine("- " + exception.Message);
-            }
-
-            Console.ForegroundColor = ConsoleColor.White;
-            WriteBreaker();
-            Console.ForegroundColor = ConsoleColor.Red;
-            throw new AggregateException("Exceptions were thrown. Scroll up to see the results.", exceptions);
-        }
+        Summary result = BenchmarkRunner.Run<T>(config);
+        HelperFunctions.WriteBreaker();
+        HelperFunctions.DisplayAndThrowErrors(result, actions);
 
         return result;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void WriteBreaker() {
-        Console.WriteLine("================");
     }
 }

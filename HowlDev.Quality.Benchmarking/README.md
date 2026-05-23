@@ -102,3 +102,52 @@ If both of these values fail in an evaluation, it will take both exceptions and 
 ```
 Method AdditionWithTimer: Benchmark time out of bounds: actual=52.14, max=10, min=0. && Benchmark memory was not equal to 0 (exp 1). Update your function to (0).
 ```
+
+## Everything in one place
+
+v0.2 provides the feature of including things you'd normally need to put in attributes into the code themselves, to make them easier to change. 
+
+All of this applies to a BenchmarkValidator object that you've applied the `.WithProfile()` function to, which changes the type. Nothing changed for the default (though you can now pass in your own custom config, finally). If you do use `.WithProfile()`, it's recommended to remove any class-level attributes, as seen below. 
+
+There are a now a few default runs to quick switch speeds (Short vs. Medium), enable/disable logging to the console, disable creating log files, enable Memory and Disassembly diagnostics, and add exporters (Github is named, but you can pass in any `IExporter` function). 
+
+To recap, the new benchmark file looks like this: 
+
+```cs
+namespace BenchmarkingConsumer;
+
+public class SampleBenchmark {
+    [Benchmark] // These are still required
+    public int AdditionWithTimer() {
+        int value = 5 + 6;
+        BenchmarkFillers.FillTime(50);
+        return value;
+    }
+
+    // ...
+}
+```
+
+And the new options look like so: 
+
+```cs
+BenchmarkValidator.For<SampleBenchmark>()
+    .Expect("AdditionWithTimer", BenchmarkExpectations.ExpectedNanosecondsLessThan(60).WithBytes(0))
+    .Expect("AdditionWithMemory", BenchmarkExpectations.ExpectedBytes(64))
+    // .WithProfile creates a new object type with different functions, and overrides many of the configs.
+    // It could cause unexpected results if used with class-level attributes on the benchmark, so make sure 
+    // to remove those for consistent results. 
+    .WithProfile(BenchmarkProfiles.SilentShortRun) // These 4 lines can go before or after the .Expect functions
+    .WithMemoryDiagnoser()
+    .WithDisassemblyOutput()
+    .WithGithubExporter()
+    // .WithoutLogOutput() // Not needed with Silent calls. 
+    .Run();
+```
+
+I provided 3 job lengths by default, Short, Medium, and Long (the same defaults from the library). They also contain a default and a Silent version, which the silent version removes the console output of the Runner (not the exception or other validation logic) and removes the log file. I've made a small table to help. 
+
+| | Want console logging | Don't want console logging |
+| --- | --- | --- | 
+| Want log files | ShortRun | N/A |
+| Don't want log files | ShortRun with `.WithoutLogOutput()` | SilentShortRun | 

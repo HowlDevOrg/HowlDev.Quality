@@ -10,8 +10,7 @@ public static class BenchmarkExtensions {
     /// Provides the method name (key of your dictionary), the mean, and 
     /// the allocated memory. 
     /// </summary>
-    /// <param name="summary"></param>
-    public static void DebugDisplay(this Summary summary) {
+    public static void DebugDisplay(this Summary summary, bool pause = false) {
         Console.WriteLine($"======{summary.Title.Split('-')[0]}======");
         for (int i = 0; i < summary.Reports.Length; i++) {
             Console.WriteLine("Method name: " + summary.Reports[i].BenchmarkCase.Descriptor.WorkloadMethod.Name);
@@ -25,6 +24,15 @@ public static class BenchmarkExtensions {
             Console.WriteLine("------------------------");
         }
 
+        if (pause) {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Paused here for Display. Press any key to continue.");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("To not pause, remove the bool from DebugDisplay.");
+            Console.ReadKey(true);
+        }
+
+        Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine("============");
     }
 }

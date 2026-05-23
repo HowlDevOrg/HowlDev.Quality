@@ -14,23 +14,9 @@ public class SampleBenchmark {
     }
 
     [Benchmark]
-    public int AdditionWithMemory1() {
+    public int AdditionWithMemory() {
         int value = 5 + 6;
         BenchmarkFillers.FillMemory(3);
-        return value;
-    }
-
-    [Benchmark]
-    public int AdditionWithMemory2() {
-        int value = 5 + 6;
-        BenchmarkFillers.FillMemory(500);
-        return value;
-    }
-
-    [Benchmark]
-    public int AdditionWithMemory3() {
-        int value = 5 + 6;
-        BenchmarkFillers.FillMemory(8000);
         return value;
     }
 }

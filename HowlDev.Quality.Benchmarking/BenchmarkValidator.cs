@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 
@@ -50,7 +51,10 @@ public class BenchmarkValidator<T> {
     /// <summary>
     /// Pass in a default configuration. This will override the Config option 
     /// in the BenchmarkRunner process. <br/>
-    /// Use the BenchmarkProfiles static class to select a config. 
+    /// Use the BenchmarkProfiles static class to select a config. <br/>
+    /// <remarks>NOTE: This may interfere with any attributes left on the class, so it's 
+    /// recommended to remove all of them and do them through these functions.
+    /// You should still have [Benchmark] on the functions.</remarks>
     /// </summary>
     public BenchmarkValidatorWithConfig<T> WithProfile(ManualConfig config) {
         return new BenchmarkValidatorWithConfig<T>(actions, config);
@@ -104,18 +108,45 @@ public class BenchmarkValidatorWithConfig<T> {
         return this;
     }
 
+    /// <summary>
+    /// Removes the log file created at the end of each run. This does not interfere
+    /// with the DisassemblyOutput or Exporter functions, you can still get 
+    /// those results. 
+    /// </summary>
     public BenchmarkValidatorWithConfig<T> WithoutLogOutput() {
         config.WithOptions(ConfigOptions.DisableLogFile);
         return this;
     }
 
+    /// <summary>
+    /// Adds the [MemoryDiagnoser] attribute to the class. 
+    /// </summary>
     public BenchmarkValidatorWithConfig<T> WithMemoryDiagnoser() {
         config.AddDiagnoser(MemoryDiagnoser.Default);
         return this;
     }
 
+    /// <summary>
+    /// Adds the [DisassemblyDiagnoser] attribute to the class. 
+    /// </summary>
     public BenchmarkValidatorWithConfig<T> WithDisassemblyOutput() {
         config.AddDiagnoser(new DisassemblyDiagnoser(new DisassemblyDiagnoserConfig()));
+        return this;
+    }
+
+    /// <summary>
+    /// Adds the Github Markdown exporter to the config.
+    /// </summary>
+    public BenchmarkValidatorWithConfig<T> WithGithubExporter() {
+        config.AddExporter(MarkdownExporter.GitHub);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds the desired exporter to the config. 
+    /// </summary>
+    public BenchmarkValidatorWithConfig<T> WithExporter(IExporter exp) {
+        config.AddExporter(exp);
         return this;
     }
 

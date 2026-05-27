@@ -101,6 +101,7 @@ internal static class HelperFunctions {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBreaker() {
+        Console.ResetColor();
         Console.WriteLine("================");
     }
 }

@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace HowlDev.Quality.Benchmarking;
 
 /// <summary>
@@ -24,6 +26,7 @@ public static class BenchmarkGroups {
         }
 
         List<BenchmarkException> exceptions = [];
+        Stopwatch timer = Stopwatch.StartNew();
         foreach (IGroupBenchmark bench in benchmarks) {
             List<BenchmarkException> runner = bench.RunAndCollectExceptions();
             if (strategy == GroupRunStrategy.ThrowOnFirstError) {
@@ -34,8 +37,11 @@ public static class BenchmarkGroups {
         }
 
         HelperFunctions.DisplayErrorsIfExists(exceptions);
+        HelperFunctions.WriteBreaker();
         Console.ForegroundColor = ConsoleColor.Magenta;
         Console.WriteLine("Completed group benchmark runs!");
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine($"Time taken for group: {Math.Round((double)timer.ElapsedMilliseconds / 1000, 2)} seconds.");
     }
 }
 

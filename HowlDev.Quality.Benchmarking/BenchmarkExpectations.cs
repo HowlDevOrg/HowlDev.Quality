@@ -43,6 +43,15 @@ public class BenchmarkExpectations {
             field = value;
         }
     }
+    /// <summary>
+    /// Size of the compiled code in bytes.
+    /// </summary>
+    public int? CodeSize {
+        get; private set {
+            if (value < 0) throw new InvalidDataException("Code Size value can't be negative.");
+            field = value;
+        }
+    }
 
     private TimeCalculation Variation { get; set; } = TimeCalculation.Range;
 
@@ -86,6 +95,11 @@ public class BenchmarkExpectations {
             Bytes = value
         };
     }
+    public static BenchmarkExpectations ExpectedCodeSize(int value) {
+        return new BenchmarkExpectations() {
+            CodeSize = value
+        };
+    }
     #endregion
     #region Object methods
     public BenchmarkExpectations WithMarginOfError(double value) {
@@ -123,14 +137,13 @@ public class BenchmarkExpectations {
         Variation = TimeCalculation.LT;
         return this;
     }
+    public BenchmarkExpectations WithCodeSize(int value) {
+        CodeSize = value;
+        return this;
+    }
 #pragma warning restore CS1591
 
-    /// <summary>
-    /// Checks if the input is a valid time length given the rules. <br/>
-    /// Throws an exception if invalid.
-    /// </summary>
-    /// <exception cref="BenchmarkException"></exception>
-    public void IsValidTime(string method, double result) {
+    internal void IsValidTime(string method, double result) {
         if (Nanoseconds is not null) {
             if (Variation == TimeCalculation.Range) {
                 double bound1 = (double)Nanoseconds * MarginOfError;
@@ -152,17 +165,17 @@ public class BenchmarkExpectations {
         }
     }
 
-    /// <summary>
-    /// Checks if the input is valid. <br/>
-    /// If bytes is &gt;1024, it converts it to the decimal expansion of 
-    /// kB to check against, which can help in the debugging stage.  
-    /// </summary>
-    /// <exception cref="InvalidDataException"></exception>
-    /// <exception cref="BenchmarkException"></exception>
-    public void IsValidBytes(string method, double result) {
+    internal void IsValidBytes(string method, double result) {
         if (Bytes is null) throw new InvalidDataException("Bytes needs to be checked before getting here.");
         if (result != Bytes) {
-            throw new BenchmarkException(method, (int)Bytes, result);
+            throw new BenchmarkException(method, (int)Bytes, result, true);
+        }
+    }
+
+    internal void IsValidCodeSize(string method, double result) {
+        if (CodeSize is null) throw new InvalidDataException("Code Size needs to be checked before getting here.");
+        if (result != CodeSize) {
+            throw new BenchmarkException(method, (int)CodeSize, result, false);
         }
     }
 
@@ -172,9 +185,10 @@ public class BenchmarkExpectations {
     /// </summary>
     /// <exception cref="BenchmarkException"></exception>
     /// <exception cref="InvalidDataException"></exception>
-    internal bool Report(BenchmarkReport report) {
+    internal void Report(BenchmarkReport report) {
         BenchmarkException? e1 = null;
         BenchmarkException? e2 = null;
+        BenchmarkException? e3 = null;
         string method = report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
         try {
             IsValidTime(method, report.ResultStatistics!.Mean);
@@ -187,8 +201,8 @@ public class BenchmarkExpectations {
                 double actBytes;
                 try {
                     actBytes = report.Metrics["Allocated Memory"].Value;
-                } catch {
-                    throw new BenchmarkException($"Did not find a memory allocation for title: {report.BenchmarkCase.ToString().Split(':')[0]}");
+                } catch (KeyNotFoundException) {
+                    throw new BenchmarkException($"{report.BenchmarkCase.ToString().Split(':')[0]}: Did not find a memory diagnoser.");
                 }
 
                 IsValidBytes(method, actBytes);
@@ -197,10 +211,22 @@ public class BenchmarkExpectations {
             e2 = ex;
         }
 
-        if (e1 is not null || e2 is not null) throw BenchmarkException.Combine(e1, e2);
+        try {
+            if (CodeSize is not null) {
+                double actCodeSize;
+                try {
+                    actCodeSize = report.Metrics["Native Code Size"].Value;
+                } catch (KeyNotFoundException) {
+                    throw new BenchmarkException($"{report.BenchmarkCase.ToString().Split(':')[0]}: Did not find a disassembly diagnoser.");
+                }
 
-        return true;
+                IsValidCodeSize(method, actCodeSize);
+            }
+        } catch (BenchmarkException ex) {
+            e3 = ex;
+        }
 
+        if (e1 is not null || e2 is not null || e3 is not null) throw BenchmarkException.Combine(e1, e2, e3);
     }
     #endregion
 

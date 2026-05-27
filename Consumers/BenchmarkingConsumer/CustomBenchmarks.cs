@@ -10,4 +10,8 @@ public static class CustomBenchmarks {
         .WithMemoryDiagnoser()
         .WithDisassemblyOutput()
         .WithGithubExporter();
+
+    public static IBenchmarkValidator Sample2Bench => BenchmarkValidator.For<SampleBenchmark2>()
+        .Expect("AdditionWithTimer", BenchmarkExpectations.ExpectedNanosecondsLessThan(30).WithBytes(0))
+        .Expect("AdditionWithMemory", BenchmarkExpectations.ExpectedBytes(144));
 }

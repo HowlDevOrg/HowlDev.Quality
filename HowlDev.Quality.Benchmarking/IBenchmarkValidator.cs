@@ -5,14 +5,7 @@ namespace HowlDev.Quality.Benchmarking;
 /// <summary>
 /// Use the static builder.
 /// </summary>
-public interface IBenchmarkValidator<T> {
-    /// <summary>
-    /// Provide the method name for a <c>[Benchmark]</c>ed function. Then use the fluent 
-    /// builder for an Expectation. <br/>
-    /// Any methods not provided (for Bytes or Nanoseconds) will default to null and 
-    /// will not be tested (will always pass no matter their result). 
-    /// </summary>
-    BenchmarkValidator<T> Expect(string methodName, BenchmarkExpectations exp);
+public interface IBenchmarkValidator {
     /// <summary>
     /// Takes the type and the provided expectations and matches them together. If 
     /// the parameter is set to true (default), then it will stop if there's a 

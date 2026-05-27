@@ -34,7 +34,7 @@ public static class BenchmarkValidator {
 /// <summary>
 /// Hidden.
 /// </summary>
-public class BenchmarkValidator<T> {
+public class BenchmarkValidator<T> : IBenchmarkValidator {
     internal BenchmarkValidator() { }
     private Dictionary<string, BenchmarkExpectations> actions = [];
     /// <summary>
@@ -51,7 +51,7 @@ public class BenchmarkValidator<T> {
     /// <summary>
     /// Pass in a default configuration. This will override the Config option 
     /// in the BenchmarkRunner process. <br/>
-    /// Use the BenchmarkProfiles static class to select a config. <br/>
+    /// Use the <c>BenchmarkProfiles</c> static class to select a config. <br/>
     /// <remarks>NOTE: This may interfere with any attributes left on the class, so it's 
     /// recommended to remove all of them and do them through these functions.
     /// You should still have [Benchmark] on the functions.</remarks>
@@ -60,26 +60,11 @@ public class BenchmarkValidator<T> {
         return new BenchmarkValidatorWithConfig<T>(actions, config);
     }
 
-    /// <summary>
-    /// Takes the type and the provided expectations and matches them together. If 
-    /// the parameter is set to true (default), then it will stop if there's a 
-    /// mismatch of provided method names and benchmarked methods. This will happen before
-    /// any benchmarks are run. <br/>
-    /// Runs the default BenchmarkRunner system. Returns the <c>Summary</c> from 
-    /// the result after running known tests. <br/>
-    /// <hr/>
-    /// To get the current results for a benchmark suite without displaying exceptions, 
-    /// call the DebugDisplay extension on the result, as below: 
-    /// <code>
-    /// BenchmarkValidator.For&lt;SampleBenchmark&gt;()
-    ///    .Run()
-    ///    .DebugDisplay();
-    /// </code>
-    /// </summary>
-    public Summary Run(bool pauseOnInvalid = true, ManualConfig? config = null) {
+    /// <inheritdoc/>
+    public Summary Run(bool pauseOnInvalid = true) {
         HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
 
-        Summary result = BenchmarkRunner.Run<T>(config);
+        Summary result = BenchmarkRunner.Run<T>();
         HelperFunctions.WriteBreaker();
         HelperFunctions.DisplayAndThrowErrors(result, actions);
 
@@ -90,7 +75,7 @@ public class BenchmarkValidator<T> {
 /// <summary>
 /// Hidden.
 /// </summary>
-public class BenchmarkValidatorWithConfig<T> {
+public class BenchmarkValidatorWithConfig<T> : IBenchmarkValidator {
     internal BenchmarkValidatorWithConfig(Dictionary<string, BenchmarkExpectations> act, ManualConfig c) {
         actions = act;
         config = c;
@@ -150,22 +135,7 @@ public class BenchmarkValidatorWithConfig<T> {
         return this;
     }
 
-    /// <summary>
-    /// Takes the type and the provided expectations and matches them together. If 
-    /// the parameter is set to true (default), then it will stop if there's a 
-    /// mismatch of provided method names and benchmarked methods. This will happen before
-    /// any benchmarks are run. <br/>
-    /// Runs the default BenchmarkRunner system. Returns the <c>Summary</c> from 
-    /// the result after running known tests. <br/>
-    /// <hr/>
-    /// To get the current results for a benchmark suite without displaying exceptions, 
-    /// call the DebugDisplay extension on the result, as below: 
-    /// <code>
-    /// BenchmarkValidator.For&lt;SampleBenchmark&gt;()
-    ///    .Run()
-    ///    .DebugDisplay();
-    /// </code>
-    /// </summary>
+    /// <inheritdoc/>
     public Summary Run(bool pauseOnInvalid = true) {
         HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
 

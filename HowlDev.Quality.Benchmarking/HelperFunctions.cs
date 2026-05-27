@@ -8,7 +8,7 @@ namespace HowlDev.Quality.Benchmarking;
 internal static class HelperFunctions {
     public static void ValidateMethods<T>(bool pauseOnInvalid, List<string> providedMethods) {
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("Validating methods provided by you and by the type...");
+        Console.WriteLine($"Validating methods provided by you and by the type {typeof(T).Name}...");
         List<string> benchmarkedMethods = [.. typeof(T)
             .GetMethods()
             .Where(a => a.GetCustomAttribute<BenchmarkAttribute>() != null)
@@ -56,10 +56,10 @@ internal static class HelperFunctions {
     }
 
     public static void DisplayAndThrowErrors(Summary result, Dictionary<string, BenchmarkExpectations> actions) {
-        DisplayErrors(GetExceptions(result, actions));
+        DisplayErrorsIfExists(GetExceptions(result, actions));
     }
 
-    public static void DisplayErrors(List<BenchmarkException> exceptions) {
+    public static void DisplayErrorsIfExists(List<BenchmarkException> exceptions) {
         if (exceptions.Count > 0) {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Exceptions thrown: ");

@@ -73,17 +73,13 @@ public class BenchmarkValidator<T> : IBenchmarkValidator {
         return result;
     }
 
-    /// <summary>
-    /// Run the MethodValidation tests to display any errors to the console. 
-    /// </summary>
-    internal void Validate(bool pauseOnInvalid = true) {
+    /// <inheritdoc/>
+    public void Validate(bool pauseOnInvalid = true) {
         HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
     }
 
-    /// <summary>
-    /// Runs the benchmark and returns any benchmark exceptions. 
-    /// </summary>
-    internal List<BenchmarkException> RunAndCollectExceptions() {
+    /// <inheritdoc/>
+    public List<BenchmarkException> RunAndCollectExceptions() {
         Summary result = BenchmarkRunner.Run<T>();
         return HelperFunctions.GetExceptions(result, actions);
     }
@@ -165,18 +161,14 @@ public class BenchmarkValidatorWithConfig<T> : IBenchmarkValidator {
         return result;
     }
 
-    /// <summary>
-    /// Run the MethodValidation tests to display any errors to the console. 
-    /// </summary>
-    internal void Validate(bool pauseOnInvalid = true) {
+    /// <inheritdoc/>
+    public void Validate(bool pauseOnInvalid = true) {
         HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
     }
 
-    /// <summary>
-    /// Runs the benchmark and returns any benchmark exceptions. 
-    /// </summary>
-    internal List<BenchmarkException> RunAndCollectExceptions() {
-        Summary result = BenchmarkRunner.Run<T>();
+    /// <inheritdoc/>
+    public List<BenchmarkException> RunAndCollectExceptions() {
+        Summary result = BenchmarkRunner.Run<T>(config);
         return HelperFunctions.GetExceptions(result, actions);
     }
 }

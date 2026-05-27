@@ -3,7 +3,7 @@ using HowlDev.Quality.Benchmarking;
 
 namespace BenchmarkingConsumer;
 
-public class SampleBenchmark {
+public class SampleBenchmarkInCode {
     [Benchmark]
     public int AdditionWithTimer() {
         int value = 5 + 6;
@@ -19,9 +19,10 @@ public class SampleBenchmark {
     }
 }
 
+[DisassemblyDiagnoser]
 [MemoryDiagnoser]
 [ShortRunJob]
-public class SampleBenchmark2 {
+public class SampleBenchmarkWithAttr {
     [Benchmark]
     public int AdditionWithTimer() {
         int value = 5 + 6;

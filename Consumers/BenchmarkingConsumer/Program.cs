@@ -3,17 +3,18 @@ using BenchmarkingConsumer;
 using HowlDev.Quality.Benchmarking;
 
 // Solo
-// CustomBenchmarks.SampleBench.Run();
-// CustomBenchmarks.Sample2Bench.Run();
-
-// Optional as enumerable (if being built in code)
-// List<IGroupBenchmark> benchmarks = [
-//     CustomBenchmarks.SampleBench,
-//     CustomBenchmarks.Sample2Bench
-// ];
+// CustomBenchmarks.SampleBenchmarkInCode.Run();
+// CustomBenchmarks.SampleBenchmarkWithAttr.Run();
 
 // Group
 BenchmarkGroups.RunAll(GroupRunStrategy.RunAll, 
-    CustomBenchmarks.SampleBench,
-    CustomBenchmarks.Sample2Bench
+    CustomBenchmarks.SampleBenchmarkInCode,
+    CustomBenchmarks.SampleBenchmarkWithAttr
 );
+
+// Optional as enumerable (if being built in code)
+// List<IGroupBenchmark> benchmarks = [
+//     CustomBenchmarks.SampleBenchmarkInCode,
+//     CustomBenchmarks.SampleBenchmarkWithAttr
+// ];
+// BenchmarkGroups.RunAll(GroupRunStrategy.RunAll, benchmarks);

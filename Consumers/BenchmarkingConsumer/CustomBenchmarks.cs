@@ -1,6 +1,6 @@
 using HowlDev.Quality.Benchmarking;
 
-namespace BenchmarkingConsumer; 
+namespace BenchmarkingConsumer;
 
 public static class CustomBenchmarks {
     public static IBenchmarkValidator SampleBench => BenchmarkValidator.For<SampleBenchmark>()

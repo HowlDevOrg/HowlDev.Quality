@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Exporters;
@@ -32,8 +33,9 @@ public static class BenchmarkValidator {
 }
 
 /// <summary>
-/// Hidden.
+/// Use the static function call on BenchmarkValidator.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public class BenchmarkValidator<T> : IBenchmarkValidator {
     internal BenchmarkValidator() { }
     private Dictionary<string, BenchmarkExpectations> actions = [];
@@ -70,11 +72,28 @@ public class BenchmarkValidator<T> : IBenchmarkValidator {
 
         return result;
     }
+
+    /// <summary>
+    /// Run the MethodValidation tests to display any errors to the console. 
+    /// </summary>
+    internal void Validate(bool pauseOnInvalid = true) {
+        HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
+    }
+
+    /// <summary>
+    /// Runs the benchmark and returns any benchmark exceptions. 
+    /// </summary>
+    internal List<BenchmarkException> RunAndCollectExceptions() {
+        Summary result = BenchmarkRunner.Run<T>();
+        return HelperFunctions.GetExceptions(result, actions);
+    }
 }
 
 /// <summary>
-/// Hidden.
+/// Use the <see cref="BenchmarkValidator&lt;T&gt;.WithProfile(ManualConfig)"/> function 
+/// to create this type. 
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public class BenchmarkValidatorWithConfig<T> : IBenchmarkValidator {
     internal BenchmarkValidatorWithConfig(Dictionary<string, BenchmarkExpectations> act, ManualConfig c) {
         actions = act;
@@ -144,5 +163,20 @@ public class BenchmarkValidatorWithConfig<T> : IBenchmarkValidator {
         HelperFunctions.DisplayAndThrowErrors(result, actions);
 
         return result;
+    }
+
+    /// <summary>
+    /// Run the MethodValidation tests to display any errors to the console. 
+    /// </summary>
+    internal void Validate(bool pauseOnInvalid = true) {
+        HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
+    }
+
+    /// <summary>
+    /// Runs the benchmark and returns any benchmark exceptions. 
+    /// </summary>
+    internal List<BenchmarkException> RunAndCollectExceptions() {
+        Summary result = BenchmarkRunner.Run<T>();
+        return HelperFunctions.GetExceptions(result, actions);
     }
 }

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 
-namespace HowlDev.Quality.Benchmarking; 
+namespace HowlDev.Quality.Benchmarking;
 
 internal static class HelperFunctions {
     public static void ValidateMethods<T>(bool pauseOnInvalid, List<string> providedMethods) {
@@ -55,7 +55,27 @@ internal static class HelperFunctions {
         WriteBreaker();
     }
 
-    internal static void DisplayAndThrowErrors(Summary result, Dictionary<string, BenchmarkExpectations> actions) {
+    public static void DisplayAndThrowErrors(Summary result, Dictionary<string, BenchmarkExpectations> actions) {
+        DisplayErrors(GetExceptions(result, actions));
+    }
+
+    public static void DisplayErrors(List<BenchmarkException> exceptions) {
+        if (exceptions.Count > 0) {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Exceptions thrown: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            foreach (BenchmarkException exception in exceptions) {
+                Console.WriteLine("- " + exception.Message);
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+            WriteBreaker();
+            Console.ForegroundColor = ConsoleColor.Red;
+            throw new AggregateException("Exceptions were thrown. Scroll up to see the results.", exceptions);
+        }
+    }
+
+    public static List<BenchmarkException> GetExceptions(Summary result, Dictionary<string, BenchmarkExpectations> actions) {
         List<BenchmarkException> exceptions = [];
         foreach (BenchmarkReport report in result.Reports) {
             string methodName = report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
@@ -75,19 +95,7 @@ internal static class HelperFunctions {
             }
         }
 
-        if (exceptions.Count > 0) {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("Exceptions thrown: ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            foreach (BenchmarkException exception in exceptions) {
-                Console.WriteLine("- " + exception.Message);
-            }
-
-            Console.ForegroundColor = ConsoleColor.White;
-            WriteBreaker();
-            Console.ForegroundColor = ConsoleColor.Red;
-            throw new AggregateException("Exceptions were thrown. Scroll up to see the results.", exceptions);
-        }
+        return exceptions;
     }
 
 

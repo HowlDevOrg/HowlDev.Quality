@@ -35,14 +35,16 @@ public static class BenchmarkGroups {
             } else {
                 exceptions.AddRange(runner);
             }
+
+            HelperFunctions.WriteBreaker();
         }
 
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine($"Time taken for group: {Math.Round((double)timer.ElapsedMilliseconds / 1000, 2)} seconds.");
         HelperFunctions.DisplayErrorsIfExists(exceptions);
         HelperFunctions.WriteBreaker();
         Console.ForegroundColor = ConsoleColor.Magenta;
         Console.WriteLine("Completed group benchmark runs!");
-        Console.ForegroundColor = ConsoleColor.DarkGreen;
-        Console.WriteLine($"Time taken for group: {Math.Round((double)timer.ElapsedMilliseconds / 1000, 2)} seconds.");
     }
 }
 

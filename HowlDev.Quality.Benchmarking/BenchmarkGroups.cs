@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using HowlDev.Quality.Benchmarking.Validators;
 
 namespace HowlDev.Quality.Benchmarking;
 

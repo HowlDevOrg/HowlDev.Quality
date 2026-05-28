@@ -1,6 +1,6 @@
 using BenchmarkDotNet.Reports;
 
-namespace HowlDev.Quality.Benchmarking;
+namespace HowlDev.Quality.Benchmarking.Validators;
 
 /// <summary>
 /// Interface for the BenchmarkValidator suite. 

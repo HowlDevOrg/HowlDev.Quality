@@ -55,4 +55,11 @@ public class BenchmarkException : Exception {
         if (ex3 is null) return Combine(ex1, ex2);
         return Combine(Combine(ex1, ex2), ex3);
     }
+
+    /// <summary>
+    /// Prepends a string to the start of the message.
+    /// </summary>
+    public static BenchmarkException Prepend(BenchmarkException ex1, string prefix) {
+        return new BenchmarkException(prefix + ex1.Message);
+    }
 }

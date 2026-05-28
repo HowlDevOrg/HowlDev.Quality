@@ -44,16 +44,29 @@ public class SampleBenchmarkWithAttr {
 public class BenchWith1Params {
     [Params(3, 5)]
     public int N;
-    [Params(1, 2)]
-    public int N2;
 
     [Benchmark]
     public int AdditionWith5() {
         if (N < 4) {
-            return 5 + N + N2;
+            return 5 + N;
         } else {
             BenchmarkFillers.FillMemory(3);
-            return 5 + N + N2;
+            return 5 + N;
+        }
+    }
+}
+
+public class BenchWith1ParamsInCode {
+    [Params(2, 4)]
+    public int N;
+
+    [Benchmark]
+    public int AdditionWith5() {
+        if (N < 4) {
+            return 5 + N;
+        } else {
+            BenchmarkFillers.FillMemory(3);
+            return 5 + N;
         }
     }
 }

@@ -190,6 +190,7 @@ public class BenchmarkExpectations {
         BenchmarkException? e2 = null;
         BenchmarkException? e3 = null;
         string method = className + "." + report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
+
         try {
             IsValidTime(method, report.ResultStatistics!.Mean);
         } catch (BenchmarkException ex) {

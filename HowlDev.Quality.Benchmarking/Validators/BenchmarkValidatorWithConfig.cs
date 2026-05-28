@@ -4,12 +4,11 @@ using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
-using HowlDev.Quality.Benchmarking.Validators;
 
-namespace HowlDev.Quality.Benchmarking;
+namespace HowlDev.Quality.Benchmarking.Validators;
 
 /// <summary>
-/// Use the <see cref="BenchmarkValidator&lt;T&gt;.WithProfile(ManualConfig)"/> function 
+/// Use the <see cref="BenchmarkValidatorBase&lt;T&gt;.WithProfile(ManualConfig)"/> function 
 /// to create this type. 
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]

@@ -5,7 +5,7 @@ using HowlDev.Quality.Benchmarking.Validators;
 namespace HowlDev.Quality.Benchmarking;
 
 /// <summary>
-/// Some default profiles to use in the <see cref="BenchmarkValidator&lt;T&gt;.WithProfile(ManualConfig)"/>
+/// Some default profiles to use in the <see cref="BenchmarkValidatorBase&lt;T&gt;.WithProfile(ManualConfig)"/>
 /// function. Provides each level of jobs with a basic and a Silent version. 
 /// </summary>
 public static class BenchmarkProfiles {

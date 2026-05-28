@@ -1,12 +1,13 @@
 using HowlDev.Quality.Benchmarking;
+using HowlDev.Quality.Benchmarking.Validators;
 
 namespace BenchmarkingConsumer;
 
 public static class CustomBenchmarks {
     public static IBenchmarkValidator SampleBenchmarkInCode => BenchmarkValidator.For<SampleBenchmarkInCode>()
+        .WithProfile(BenchmarkProfiles.ShortRun)
         .Expect("AdditionWithTimer", BenchmarkExpectations.ExpectedNanosecondsLessThan(60).WithBytes(0).WithCodeSize(20))
         .Expect("AdditionWithMemory", BenchmarkExpectations.ExpectedBytes(64).WithCodeSize(1462))
-        .WithProfile(BenchmarkProfiles.ShortRun)
         .WithMemoryDiagnoser()
         .WithDisassemblyOutput()
         .WithGithubExporter();

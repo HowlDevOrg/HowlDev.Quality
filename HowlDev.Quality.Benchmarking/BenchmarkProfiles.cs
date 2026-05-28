@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
+using HowlDev.Quality.Benchmarking.Validators;
 
 namespace HowlDev.Quality.Benchmarking;
 

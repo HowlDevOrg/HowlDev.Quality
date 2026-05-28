@@ -20,6 +20,12 @@ public static class BenchmarkExtensions {
             } catch {
                 Console.WriteLine("GC Allocation not recorded. Include [MemoryDiagnoser] attribute to validate.");
             }
+            
+            try {
+                Console.WriteLine("Code Size: " + summary.Reports[i].Metrics["Native Code Size"].Value);
+            } catch {
+                Console.WriteLine("Code Size not recorded. Include [DisassemblyDiagnoser] attribute to validate.");
+            }
 
             Console.WriteLine("------------------------");
         }

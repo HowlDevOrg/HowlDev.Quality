@@ -178,8 +178,8 @@ internal static class HelperFunctions {
                     for (int j = 0; j < report.BenchmarkCase.Parameters.Count; j++) {
                         ParameterInstance item = report.BenchmarkCase.Parameters[j];
                         match = exp.FirstOrDefault(a => EqualityComparer<T>.Default.Equals(a.Item1, (T)item.Value));
-
-                        match.Item2.Report(report, className);
+                        // Important null check here
+                        match.Item2?.Report(report, className);
                     }
                 }
             } catch (Exception ex) {

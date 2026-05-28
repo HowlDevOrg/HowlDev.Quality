@@ -2,7 +2,7 @@ using System.ComponentModel;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 
-namespace HowlDev.Quality.Benchmarking.Validators; 
+namespace HowlDev.Quality.Benchmarking.Validators;
 
 /// <summary>
 /// Use the static function call on BenchmarkValidatorBase.
@@ -22,3 +22,12 @@ public class BenchmarkValidator<T> : BenchmarkValidatorAbstractBase<T> {
         return BenchmarkRunner.Run<T>();
     }
 }
+
+// /// <summary>
+// /// Use the static function call on BenchmarkValidatorBase with two types.
+// /// </summary>
+// [EditorBrowsable(EditorBrowsableState.Never)]
+// public class BenchmarkValidator<T, P> : BenchmarkValidatorAbstractBase {
+//     private string name;
+//     internal BenchmarkValidator(string paramName) { name = paramName; }
+// }

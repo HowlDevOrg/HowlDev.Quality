@@ -26,7 +26,7 @@ public abstract class BenchmarkValidatorAbstractBase<T> : IBenchmarkValidator {
 
     /// <inheritdoc/>
     public Summary Run(bool pauseOnInvalid = true) {
-        HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
+        Validate(pauseOnInvalid);
 
         Summary result = RunBenchmark();
         HelperFunctions.WriteBreaker();

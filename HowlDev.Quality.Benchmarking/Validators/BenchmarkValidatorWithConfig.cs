@@ -12,20 +12,15 @@ namespace HowlDev.Quality.Benchmarking.Validators;
 /// to create this type. 
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
-public class BenchmarkValidatorWithConfig<T> : IBenchmarkValidator {
+public class BenchmarkValidatorWithConfig<T> : BenchmarkValidatorAbstractBase<T> {
     internal BenchmarkValidatorWithConfig(Dictionary<string, BenchmarkExpectations> act, ManualConfig c) {
         actions = act;
         config = c;
     }
     private ManualConfig config;
-    private Dictionary<string, BenchmarkExpectations> actions = [];
-    /// <summary>
-    /// Provide the method name for a <c>[Benchmark]</c>ed function. Then use the fluent 
-    /// builder for an Expectation. <br/>
-    /// Any methods not provided (for Bytes or Nanoseconds) will default to null and 
-    /// will not be tested (will always pass no matter their result). 
-    /// </summary>
-    public BenchmarkValidatorWithConfig<T> Expect(string methodName, BenchmarkExpectations exp) {
+
+    /// <inheritdoc/>
+    public override BenchmarkValidatorWithConfig<T> Expect(string methodName, BenchmarkExpectations exp) {
         actions.Add(methodName, exp);
         return this;
     }
@@ -73,24 +68,7 @@ public class BenchmarkValidatorWithConfig<T> : IBenchmarkValidator {
     }
 
     /// <inheritdoc/>
-    public Summary Run(bool pauseOnInvalid = true) {
-        HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
-
-        Summary result = BenchmarkRunner.Run<T>(config);
-        HelperFunctions.WriteBreaker();
-        HelperFunctions.DisplayAndThrowErrors(result, actions);
-
-        return result;
-    }
-
-    /// <inheritdoc/>
-    public void Validate(bool pauseOnInvalid = true) {
-        HelperFunctions.ValidateMethods<T>(pauseOnInvalid, [.. actions.Keys]);
-    }
-
-    /// <inheritdoc/>
-    public List<BenchmarkException> RunAndCollectExceptions() {
-        Summary result = BenchmarkRunner.Run<T>(config);
-        return HelperFunctions.GetExceptions(result, actions);
+    protected override Summary RunBenchmark() {
+        return BenchmarkRunner.Run<T>(config);
     }
 }

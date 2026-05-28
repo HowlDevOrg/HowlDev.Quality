@@ -185,11 +185,11 @@ public class BenchmarkExpectations {
     /// </summary>
     /// <exception cref="BenchmarkException"></exception>
     /// <exception cref="InvalidDataException"></exception>
-    internal void Report(BenchmarkReport report) {
+    internal void Report(BenchmarkReport report, string className) {
         BenchmarkException? e1 = null;
         BenchmarkException? e2 = null;
         BenchmarkException? e3 = null;
-        string method = report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
+        string method = className + "." + report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
         try {
             IsValidTime(method, report.ResultStatistics!.Mean);
         } catch (BenchmarkException ex) {

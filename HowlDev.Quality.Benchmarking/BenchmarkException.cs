@@ -15,20 +15,21 @@ public class BenchmarkException : Exception {
     /// <summary>
     /// Send a Memory message here. 
     /// </summary>
-    public BenchmarkException(string method, int exp, double actual, bool memory) : base(memory ? FormatMemoryMessage(method, exp, actual) : FormatCodeSizeMessage(method, exp, actual)) { }
+    public BenchmarkException(string descript, int exp, double actual, bool memory) 
+        : base(memory ? FormatMemoryMessage(descript, exp, actual) : FormatCodeSizeMessage(descript, exp, actual)) { }
 
     /// <summary>
     /// Send a Time message here. 
     /// </summary>
-    public BenchmarkException(string method, double actual, double max, double min)
-        : base(FormatTimeMessage(method, actual, max, min)) { }
+    public BenchmarkException(string descript, double actual, double max, double min)
+        : base(FormatTimeMessage(descript, actual, max, min)) { }
 
-    private static string FormatTimeMessage(string method, double actual, double max, double min) =>
-        $"Method {method}: Benchmark time out of bounds: actual={Math.Round(actual, 2)}, max={Math.Round(max, 2)}, min={Math.Round(min, 2)}.";
-    private static string FormatMemoryMessage(string method, int exp, double actual) =>
-        $"Method {method}: Benchmark memory was not equal to: {actual} (exp: {exp}). {(actual < exp ? $"Update your function to ({actual})." : "Your changes resulted in higher memory use.")}";
-    private static string FormatCodeSizeMessage(string method, int exp, double actual) =>
-        $"Method {method}: Code size was not equal to: {actual} (exp: {exp}). {(actual < exp ? $"Update your function to ({actual})." : "Your changes resulted in higher code size.")}";
+    private static string FormatTimeMessage(string descript, double actual, double max, double min) =>
+        $"{descript}: Benchmark time out of bounds: actual={Math.Round(actual, 2)}, max={Math.Round(max, 2)}, min={Math.Round(min, 2)}.";
+    private static string FormatMemoryMessage(string descript, int exp, double actual) =>
+        $"{descript}: Benchmark memory was not equal to: {actual} (exp: {exp}). {(actual < exp ? $"Update your function to ({actual})." : "Your changes resulted in higher memory use.")}";
+    private static string FormatCodeSizeMessage(string descript, int exp, double actual) =>
+        $"{descript}: Code size was not equal to: {actual} (exp: {exp}). {(actual < exp ? $"Update your function to ({actual})." : "Your changes resulted in higher code size.")}";
 
     /// <summary>
     /// Combines the two error messages into one. If one or the other is null, simple returns 
@@ -51,7 +52,7 @@ public class BenchmarkException : Exception {
         // Works as long as at least one is not null, which I should be checking. 
         if (ex1 is null) return Combine(ex2, ex3);
         if (ex2 is null) return Combine(ex1, ex3);
-        if (ex3 is null) return Combine(ex2, ex2);
+        if (ex3 is null) return Combine(ex1, ex2);
         return Combine(Combine(ex1, ex2), ex3);
     }
 }

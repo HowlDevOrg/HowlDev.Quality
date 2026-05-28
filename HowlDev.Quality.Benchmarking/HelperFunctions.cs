@@ -55,8 +55,8 @@ internal static class HelperFunctions {
         WriteBreaker();
     }
 
-    public static void DisplayAndThrowErrors(Summary result, Dictionary<string, BenchmarkExpectations> actions) {
-        DisplayErrorsIfExists(GetExceptions(result, actions));
+    public static void DisplayAndThrowErrors(Summary result, Dictionary<string, BenchmarkExpectations> actions, string className) {
+        DisplayErrorsIfExists(GetExceptions(result, actions, className));
     }
 
     public static void DisplayErrorsIfExists(List<BenchmarkException> exceptions) {
@@ -75,13 +75,13 @@ internal static class HelperFunctions {
         }
     }
 
-    public static List<BenchmarkException> GetExceptions(Summary result, Dictionary<string, BenchmarkExpectations> actions) {
+    public static List<BenchmarkException> GetExceptions(Summary result, Dictionary<string, BenchmarkExpectations> actions, string className) {
         List<BenchmarkException> exceptions = [];
         foreach (BenchmarkReport report in result.Reports) {
             string methodName = report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
             try {
                 if (actions.TryGetValue(methodName, out BenchmarkExpectations? exp)) {
-                    exp.Report(report);
+                    exp.Report(report, className);
                 }
             } catch (Exception ex) {
                 if (ex is BenchmarkException ex1) {

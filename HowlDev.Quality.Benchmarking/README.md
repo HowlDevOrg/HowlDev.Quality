@@ -151,3 +151,69 @@ I provided 3 job lengths by default, Short, Medium, and Long (the same defaults 
 | --- | --- | --- | 
 | Want log files | ShortRun | N/A |
 | Don't want log files | ShortRun with `.WithoutLogOutput()` | SilentShortRun | 
+
+---
+
+## Groups and Params
+
+v0.3 provides Group and `[Params]` support. 
+
+You know how annoying it is when something throws an error in a CI pipeline and then you go fix that one thing, then you run it again and something later in the pipeline breaks? 
+
+That can happen pretty easily with sequential BenchmarkValidator runs. So, there's now a static `BenchmarkGroups` class that has a RunAll method and two different enums to choose from, whether you are trying to debug it and it should run all of them, then throw errors, or it should save CPU cycles and throw on the first error. 
+
+Briefly, before showing you the group code, first you should know that everything branching off of `BenchmarkValidator.For<>()` now implements a shared interface, `IBenchmarkValidator`, which has one subset for runners (running individual ones with the `.Run()` function) and one interface for this Group features, which collects all exceptions and has to run a bit differently. 
+
+Because they share one interface, it's much easier to write a static class where you put all the numbers and expectations, then call them in one-liners that can be easily commented out for debugging purposes. 
+
+With that said, the groups run as a `params IBenchmarkValidator` or as `IEnumerable<IBenchmarkValidator>`, whichever is easier for you to make. The enum is the first parameter, then as many benchmarks as you want to run. 
+
+```cs
+// Group
+BenchmarkGroups.RunAll(GroupRunStrategy.RunAll, 
+    CustomBenchmarks.SampleBenchmarkInCode,
+    CustomBenchmarks.SampleBenchmarkWithAttr
+);
+```
+
+The above snippet will take those in, run the validations at the start (any method name mismatches), then runs them sequentially. If there are any errors in any runs, they throw at the end with the class name (new!) and method name attached to be easy to find. 
+
+### Params
+
+I now support.. 1 whole `[Params]` parameter! It requires the type and name of the parameter in the call, and this enforces one of those types to be in your Expect call (so you can write different expectations for the same method but a different parameter). 
+
+You do this with the `.ForParams<>("")` call. Using the Static explanation from above, here's an example of what it looks like, with some comments. This version runs via attributes and no profile, which is shorter for demonstration here. 
+
+```cs
+public static IBenchmarkValidator OneParamBenchWithAttr => BenchmarkValidator.For<BenchWith1Params>()
+    .ForParams<int>("N")
+    // For the method AdditionWith5, and where the parameter is equal to 3
+    .Expect("AdditionWith5", 3, BenchmarkExpectations.ExpectedNanosecondsLessThan(30).WithBytes(0).WithCodeSize(49))
+    // For the method AdditionWith5, and where the parameter is equal to 5
+    .Expect("AdditionWith5", 5, BenchmarkExpectations.ExpectedBytes(64).WithCodeSize(1498));
+```
+
+You may wonder why their results are so drastically different, and that's so I could make sure that one was different than the other. 
+
+```cs
+public class BenchWith1Params {
+    [Params(3, 5)]
+    public int N;
+
+    [Benchmark]
+    public int AdditionWith5() {
+        if (N < 4) {
+            return 5 + N;
+        } else {
+            BenchmarkFillers.FillMemory(3);
+            return 5 + N;
+        }
+    }
+}
+```
+
+### Other things
+
+This added in a restriction to the way you build with new profiles, so now, the selection of what the benchmark does and will run needs to be decided directly after the `.For<>()` call. Once you call Expect, you're limited to only Expect and Run. Once you call WithProfile, you're limited to that configuration (and can put subsequent calls wherever). This should be pretty easy to reorder if you're getting errors. 
+
+You also need to call `.ForParams<T>("N")` directly after, then you can choose the Expect or WithProfile option in the same way. It was just a minor explosion of types that I don't really know how to fix right now, so I stuck with one before writing/duplicating too much. 

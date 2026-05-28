@@ -150,7 +150,7 @@ public class BenchmarkValidatorWithConfig<T, P> : IBenchmarkValidator {
     public Summary Run(bool pauseOnInvalid = true) {
         Validate(pauseOnInvalid);
 
-        Summary result = BenchmarkRunner.Run<T>();
+        Summary result = BenchmarkRunner.Run<T>(config);
         HelperFunctions.WriteBreaker();
         HelperFunctions.DisplayAndThrowErrors(result, actions, typeof(T).Name);
 

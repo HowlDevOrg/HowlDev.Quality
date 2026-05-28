@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <Version>0.3.0</Version>
+        <Version>0.3.1</Version>
         <Authors>Howl Dev</Authors>
         <Description>Provides a wrapper around BenchmarkDotNet for the purposes of determining if a change is faster, smaller, or more memory efficient.</Description>
         <Copyright>Copyright (c) Howl Dev 2026</Copyright>
